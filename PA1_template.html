@@ -246,7 +246,8 @@ with(fives, plot(x = interval, y = steps, type = &quot;l&quot;))
 <pre><code class="r">cc &lt;- sum(!complete.cases(activity))
 </code></pre>
 
-<p>###There are 2304 incomplete cases (rows with NA)</p>
+<p>###There are 2304 incomplete cases (rows with NA)
+##I will use the impute function from the Hmisc package to fill in the NA values</p>
 
 <pre><code class="r">steps.i &lt;- impute(activity$steps, mean)
 activity.i &lt;- activity

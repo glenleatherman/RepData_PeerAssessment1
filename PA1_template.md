@@ -53,7 +53,7 @@ mx <- arrange(fives,desc(steps))[1,1]
 cc <- sum(!complete.cases(activity))
 ```
 ###There are 2304 incomplete cases (rows with NA)
-
+##I will use the impute function from the Hmisc package to fill in the NA values
 
 ```r
 steps.i <- impute(activity$steps, mean)

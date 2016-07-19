@@ -40,7 +40,7 @@ mx <- arrange(fives,desc(steps))[1,1]
 cc <- sum(!complete.cases(activity))
 ```
 ###There are `r cc` incomplete cases (rows with NA)
-
+##I will use the impute function from the Hmisc package to fill in the NA values
 ```{r impute, echo=TRUE}
 steps.i <- impute(activity$steps, mean)
 activity.i <- activity
