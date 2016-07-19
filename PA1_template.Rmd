@@ -4,22 +4,69 @@ output:
   html_document:
     keep_md: true
 ---
-
-
+##load libraries
+```{r libraries, echo=TRUE, message=FALSE}
+library(dplyr)
+library(Hmisc)
+```
+  
 ## Loading and preprocessing the data
-
-
-
+```{r load, echo=TRUE}
+activity <- read.table(unz("activity.zip", "activity.csv"), header = TRUE, sep = ",", quote = "\"")
+totals <- activity %>% na.omit() %>% group_by(date) %>% dplyr::summarize(steps = sum(steps))
+hist(totals$steps, breaks=53, main="Steps per day", xlab="Steps")
+```
+  
 ## What is mean total number of steps taken per day?
-
-
-
+```{r mean, echo=TRUE}
+m1 <- as.integer(mean(totals$steps))
+```
+###The mean is `r m1`.
+```{r median, echo=TRUE}
+m2 <- as.integer(median(totals$steps))
+```
+###The median is `r m2`.
+  
 ## What is the average daily activity pattern?
-
-
-
+```{r average, echo=TRUE}
+fives <- activity %>% na.omit() %>% group_by(interval) %>% dplyr::summarize(steps = mean(steps))
+with(fives, plot(x = interval, y = steps, type = "l"))
+mx <- arrange(fives,desc(steps))[1,1]
+```
+###The interval with max steps is `r mx`.  
+  
 ## Imputing missing values
+```{r incomplete, echo=TRUE}
+cc <- sum(!complete.cases(activity))
+```
+###There are `r cc` incomplete cases (rows with NA)
 
-
-
+```{r impute, echo=TRUE}
+steps.i <- impute(activity$steps, mean)
+activity.i <- activity
+activity.i[,1] <- steps.i
+totals.i <- activity.i %>% group_by(date) %>% dplyr::summarize(steps = sum(steps))
+hist(totals.i$steps, breaks=53, main="Steps per day (imputed)", xlab="Steps")
+m1.i <- as.integer(mean(totals.i$steps))
+```
+###The mean of imputed steps is `r m1.i`.
+```{r median.i, echo=TRUE}
+m2.i <- as.integer(median(totals.i$steps))
+```
+###The median of imputed steps is `r m2.i`.
+  
+###The median has increased by a single step.
+###The addition of imputed data seems to have made no significant impact.
+  
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r diffs, echo=TRUE}
+vwdays <- as.factor(weekdays(as.Date(activity.i$date)))
+wkdays <- as.factor(ifelse(vwdays %in% c("Monday","Tuesday","Wednesday","Thurdsday","Friday"), "weekday", "weekend"))
+activity.i$wkday <- wkdays
+fiveswkdays <- activity.i %>% filter(wkdays == "weekday") %>% group_by(interval) %>% dplyr::summarize(steps = mean(steps))
+fiveswkends <- activity.i %>% filter(wkdays == "weekend") %>% group_by(interval) %>% dplyr::summarize(steps = mean(steps))
+par(mfrow=c(2,1))
+with(fiveswkdays, plot(x=interval, y=steps, type="l", main="Weekdays"))
+with(fiveswkends, plot(x=interval, y=steps, type="l", main="Weekends"))
+
+```
